@@ -1,28 +1,17 @@
 import os
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
-import joblib
 import pandas as pd
+from src.predict_pipeline import PredictPipeline
 
 # 1. Initialize FastAPI Application
 app = FastAPI(
     title="Customer Churn Prediction API",
-    description="A lightweight production REST endpoint using Pydantic data shielding.",
+    description="A modular production REST endpoint using Pydantic data validation and clean project architecture.",
     version="1.0.0"
 )
 
-# 2. Define the path where our trained model binary lives
-# Determine the absolute base directory of the project root
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-MODEL_PATH = os.path.join(BASE_DIR, "models", "churn_model.pkl")
-# 3. Load the model into memory upon server startup
-if os.path.exists(MODEL_PATH):
-    model = joblib.load(MODEL_PATH)
-    print("--- Production model binary successfully loaded into RAM ---")
-else:
-    raise FileNotFoundError(f"Critical Error: Trained model weights file missing at {MODEL_PATH}. Please run train.py first.")
-
-# 4. Define Data Validation Shield using Pydantic
+# 2. Define Data Validation Shield using Pydantic
 class CustomerDataInput(BaseModel):
     credit_score: int
     age: int
@@ -33,12 +22,19 @@ class CustomerDataInput(BaseModel):
     is_active_member: int
     estimated_salary: float
 
-# 5. Basic Server Health-Check Endpoint
+# 3. Initialize prediction pipeline
+try:
+    predict_pipeline = PredictPipeline(config_path="config.yaml")
+    print("--- Prediction Engine Initialized Successfully ---")
+except Exception as e:
+    print(f"Warning: Prediction Engine initialization failed: {e}. Make sure a model is trained first.")
+
+# 4. Basic Server Health-Check Endpoint
 @app.get("/")
 def read_root():
     return {"status": "healthy", "service": "customer-churn-classifier"}
 
-# 6. Prediction Engine Inference Endpoint
+# 5. Prediction Engine Inference Endpoint
 @app.post("/predict")
 def predict_churn(input_data: CustomerDataInput):
     try:
@@ -47,10 +43,7 @@ def predict_churn(input_data: CustomerDataInput):
         input_df = pd.DataFrame([data_dict])
         
         # Execute model classification prediction (0 = Stay, 1 = Churn)
-        prediction = model.predict(input_df)[0]
-        
-        # Extract confidence score probabilities
-        probabilities = model.predict_proba(input_df)[0]
+        prediction, probabilities = predict_pipeline.predict(input_df)
         confidence = float(probabilities[prediction])
 
         return {
@@ -59,5 +52,7 @@ def predict_churn(input_data: CustomerDataInput):
             "confidence_score": round(confidence, 4)
         }
 
+    except FileNotFoundError as fnf_err:
+        raise HTTPException(status_code=404, detail=str(fnf_err))
     except Exception as e:
         raise HTTPException(status_code=500, detail=f"Inference Engine Crash: {str(e)}")

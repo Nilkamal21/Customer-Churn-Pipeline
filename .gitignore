@@ -5,11 +5,22 @@ __pycache__/
 *.pyd
 .pytest_cache/
 
+# === Virtual Environments ===
+venv/
+.venv/
+env/
+
 # === MLflow Tracking & Artifacts ===
 # Ignores the local file-system tracking folders
 mlruns/
 # Ignores the SQLite database binary log file to keep your GitHub repo lightweight
 mlflow.db
+
+# === Pipeline Runtime Outputs ===
+# Ignores raw/split datasets and trained binary model files
+artifacts/
+# Ignores execution log files
+logs/
 
 # === OS & IDE Customizations ===
 .DS_Store

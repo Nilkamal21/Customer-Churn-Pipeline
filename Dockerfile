@@ -10,14 +10,16 @@ COPY requirements.txt .
 # 4. Install the required system packages
 RUN pip install --no-cache-dir -r requirements.txt
 
-# 5. Copy the rest of our application code and assets into the container
+# 5. Copy application code and assets into the container
 COPY src/ ./src/
 COPY data/ ./data/
-COPY models/ ./models/
+COPY artifacts/ ./artifacts/
+COPY app.py .
+COPY config.yaml .
 COPY mlflow.db .
 
 # 6. Expose the standard networking port our API will communicate over
 EXPOSE 8000
 
 # 7. Command to execute Uvicorn directly from within the container
-CMD ["uvicorn", "app:app", "--app-dir", "src", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8000"]

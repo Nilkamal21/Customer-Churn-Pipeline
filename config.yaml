@@ -1,0 +1,23 @@
+# Project Configuration File for Customer Churn Prediction ML Pipeline
+
+artifacts_dir: "artifacts"
+logs_dir: "logs"
+
+data:
+  raw_data_path: "data/customer_churn.csv"
+  train_data_path: "artifacts/train.csv"
+  test_data_path: "artifacts/test.csv"
+  test_size: 0.2
+  random_state: 42
+  target_column: "churn"
+
+model:
+  n_estimators: 100
+  random_state: 42
+  model_path: "artifacts/churn_model.pkl"
+  registered_model_name: "Churn_RandomForest_Model"
+
+mlflow:
+  tracking_uri: "sqlite:///mlflow.db"
+  experiment_name: "Customer_Churn_Tracking"
+  run_name: "Random_Forest_Production_Run"

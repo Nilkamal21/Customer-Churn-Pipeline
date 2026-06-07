@@ -30,7 +30,7 @@ jobs:
     # 4. Run the training process to verify MLflow database writes work perfectly
     - name: Execute Model Training & Logging Pipeline
       run: |
-        python src/train.py
+        python src/data_ingestion.py
 
     # 5. Build the Docker container image to verify it packages with zero errors
     - name: Verify Docker Container Build Stability
