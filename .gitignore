@@ -1,0 +1,18 @@
+# === Python Cache Clutter ===
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.pytest_cache/
+
+# === MLflow Tracking & Artifacts ===
+# Ignores the local file-system tracking folders
+mlruns/
+# Ignores the SQLite database binary log file to keep your GitHub repo lightweight
+mlflow.db
+
+# === OS & IDE Customizations ===
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
